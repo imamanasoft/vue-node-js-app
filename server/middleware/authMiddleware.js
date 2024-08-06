@@ -13,10 +13,7 @@ export const protect = async (req, res, next) => {
   ) {
     try {
       token = req.headers.authorization.split(" ")[1];
-      const decoded = jwt.verify(
-        token,
-        "4c4fdcd0692152f7b24284485f78fa92eddeed6a71d65a58cc63d25f8205d024"
-      );
+      const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
       req.user = await User.findById(decoded.id).select("-password");
       next();
