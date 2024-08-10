@@ -57,7 +57,7 @@ export const loginUser = async (req, res) => {
 // Get user profile
 export const getUser = async (req, res) => {
   try {
-    const user = await User.findById(req.user._id);
+    const user = await User.findById(req.params.id);
 
     if (user) {
       res.json({
@@ -95,6 +95,19 @@ export const deleteUser = async (req, res) => {
     } else {
       res.status(404).json({ message: "User not found" });
     }
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// Delete selected users
+export const deleteSelectedUsers = async (req, res) => {
+  try {
+    const { ids } = req.body;
+
+    await User.deleteMany({ _id: { $in: ids } });
+
+    res.status(200).json({ message: "Users deleted" });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

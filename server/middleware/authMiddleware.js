@@ -5,7 +5,6 @@ import User from "../models/User.js";
 
 export const protect = async (req, res, next) => {
   let token;
-  let token1 = req.headers.authorization;
 
   if (
     req.headers.authorization &&

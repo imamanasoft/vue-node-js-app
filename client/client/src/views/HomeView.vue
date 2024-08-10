@@ -2,12 +2,23 @@
 
 <template>
   <div class="home">
-    <h1>Welcome to FullStack App</h1>
-    <p>This is the home page.</p>
-    <h3>List of users</h3>
+    <h1 class="mb-4">Welcome to FullStack App</h1>
+    <div class="d-flex justify-content-center">
+      <h3>List of users</h3>
+      <button class="btn btn-secondary ms-2" @click="bulkDelete">
+        Bulk delete
+      </button>
+    </div>
     <table class="table m-4">
       <thead>
         <tr>
+          <th scope="col">
+            <input
+              type="checkbox"
+              v-model="isAllUsersChecked"
+              @change="handleSelectAll($event)"
+            />
+          </th>
           <th scope="col">Actions</th>
           <th scope="col">ID</th>
           <th scope="col">Name</th>
@@ -15,7 +26,19 @@
         </tr>
       </thead>
       <tbody>
-        <tr v-for="user in users" :key="user._id">
+        <tr
+          v-for="user in users"
+          :key="user._id"
+          :class="{ 'table-secondary': userInfo._id === user._id }"
+        >
+          <td>
+            <input
+              v-if="userInfo && userInfo._id !== user._id"
+              type="checkbox"
+              :value="user._id"
+              v-model="listOfSelectedUsersId"
+            />
+          </td>
           <td class="d-flex">
             <button
               class="btn btn-primary me-2"
@@ -24,7 +47,7 @@
               Edit
             </button>
             <button
-              v-if="userInfo._id !== user._id"
+              v-if="userInfo && userInfo._id !== user._id"
               class="btn btn-danger"
               @click="deleteUser(user._id)"
             >
@@ -72,7 +95,7 @@
 
 <script setup>
 import ModalComponent from "../components/ModalComponent.vue";
-import { ref, onMounted, toRaw } from "vue";
+import { ref, toRaw, onMounted, watch } from "vue";
 import { storeToRefs } from "pinia";
 
 import { useUserStore } from "../store/useUserStore";
@@ -83,9 +106,47 @@ const { userInfo, users } = storeToRefs(userStore);
 let displayModal = ref(false);
 let editedUser = {};
 
+let listOfSelectedUsersId = ref([]);
+let isAllUsersChecked = ref(false);
+
+function handleSelectAll(e) {
+  if (e.target.checked) {
+    let that = this;
+    // we change only the content of value in order to keep reactivity
+    listOfSelectedUsersId.value = users.value.map((user) => user._id);
+    listOfSelectedUsersId.value = listOfSelectedUsersId.value.filter(
+      (id) => id !== that.userInfo._id
+    );
+
+    return;
+  }
+
+  // we change only the content of value in order to keep reactivity
+  listOfSelectedUsersId.value = [];
+}
+
+watch(
+  listOfSelectedUsersId,
+  () => {
+    isAllUsersChecked.value =
+      listOfSelectedUsersId.value.length === users.value.length - 1;
+  },
+  { deep: true }
+);
+
+watch(
+  users,
+  () => {
+    console.log("users has been updated");
+  },
+  { immediate: true }, //we may want to fetch some initial data, and then re-fetch the data whenever relevant state changes.
+  { once: true } //the callback to trigger only once when the source changes
+);
+
 function openUserEditionModal(user) {
   displayModal.value = true;
-  editedUser = toRaw(user);
+  editedUser = { ...user }; // In order to disable reactivity
+  person.name = "popo" + Math.random();
 }
 
 function handleUserEdition() {
@@ -95,6 +156,10 @@ function handleUserEdition() {
 
 function deleteUser(id) {
   userStore.deleteUserById(id);
+}
+
+function bulkDelete() {
+  userStore.deleteSelectedUsers(toRaw(listOfSelectedUsersId.value)); // we need to prepare param before sending it to BE
 }
 
 onMounted(async () => {

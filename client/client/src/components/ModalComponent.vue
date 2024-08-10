@@ -48,5 +48,6 @@ defineProps({
 <style scoped>
 .modal {
   display: block;
+  background-color: rgba(0, 0, 0, 0.5);
 }
 </style>

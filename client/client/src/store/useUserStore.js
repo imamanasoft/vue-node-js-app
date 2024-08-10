@@ -42,6 +42,7 @@ export const useUserStore = defineStore("user", {
           email,
           password,
         });
+
         this.userInfo = res.data;
         localStorage.setItem("user", JSON.stringify(this.userInfo));
       } catch (error) {
@@ -62,6 +63,15 @@ export const useUserStore = defineStore("user", {
     async deleteUserById(id) {
       try {
         await axios.delete("/api/users/" + id); //axios.delete(`/api/users/${id}`)
+
+        this.getAllUsers();
+      } catch (error) {
+        throw error.message;
+      }
+    },
+    async deleteSelectedUsers(ids) {
+      try {
+        await axios.post("/api/users/delete", { ids });
 
         this.getAllUsers();
       } catch (error) {
