@@ -12,12 +12,17 @@
 </template>
 
 <script setup>
+// vue
 import { ref, computed, onMounted } from "vue";
-import { useUserStore } from "../store/useUserStore";
 
-let isLoading = ref(true);
+// store
+import { useUserStore } from "../store/useUserStore";
 const userStore = useUserStore();
 
+// data
+let isLoading = ref(true);
+
+// computed
 const userInfo = computed(() => userStore.userInfo);
 
 onMounted(async () => {

@@ -35,18 +35,25 @@
 </template>
 
 <script setup>
+// vue
 import { onMounted, ref } from "vue";
-import { useUserStore } from "../store/useUserStore";
-import { useRouter } from "vue-router";
 
+// store
+import { useUserStore } from "../store/useUserStore";
+const userStore = useUserStore();
+
+// router
+import { useRouter } from "vue-router";
+const router = useRouter();
+
+// data
 const nameInput = ref(null);
 const name = ref("");
 const email = ref("");
 const password = ref("");
 const error = ref(null);
-const userStore = useUserStore();
-const router = useRouter();
 
+// methods
 const handleRegister = async () => {
   try {
     await userStore.createUser(name.value, email.value, password.value);

@@ -5,7 +5,10 @@ import generateToken from "../utils/generateToken.js";
 
 // create a new product
 export const createProduct = async (req, res) => {
-  const { name, description, price, category, image } = req.body.product;
+  const { name, description, price, category, stock } = req.body;
+
+  // should follow same template as initialized in our product model
+  const image = { data: req.file.buffer, contentType: req.file.mimetype };
 
   try {
     const product = await Product.create({
@@ -13,17 +16,11 @@ export const createProduct = async (req, res) => {
       description,
       price,
       category,
+      stock,
       image,
     });
 
-    res.status(201).json({
-      _id: product._id,
-      name: product.name,
-      description: product.description,
-      price: product.price,
-      category: product.category,
-      image: product.image,
-    });
+    res.status(201).json({ message: "Product created successfully", product });
   } catch (error) {
     console.log("error", error);
     res.status(500).json({ message: error.message });
@@ -34,6 +31,12 @@ export const createProduct = async (req, res) => {
 export const getProducts = async (req, res) => {
   try {
     let data = await Product.find();
+
+    /*data.forEach((product) => {
+      console.log("product.image.data.data", product.image);
+      product.image.data = Buffer.from(product.image.data).toString("base64");
+    });*/
+
     res.status(200).json(data);
   } catch (error) {
     res.status(500).json({ message: error.message });

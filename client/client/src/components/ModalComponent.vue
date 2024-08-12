@@ -40,6 +40,7 @@
 </template>
 
 <script setup>
+// props
 defineProps({
   displayModalFooter: Boolean,
 });

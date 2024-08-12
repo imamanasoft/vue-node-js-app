@@ -15,6 +15,7 @@
           <th scope="col">
             <input
               type="checkbox"
+              :indeterminate="isIndeterminate"
               v-model="isAllUsersChecked"
               @change="handleSelectAll($event)"
             />
@@ -29,7 +30,7 @@
         <tr
           v-for="user in users"
           :key="user._id"
-          :class="{ 'table-secondary': userInfo._id === user._id }"
+          :class="{ 'table-secondary': userInfo?._id === user._id }"
         >
           <td>
             <input
@@ -94,37 +95,35 @@
 </template>
 
 <script setup>
+// components
 import ModalComponent from "../components/ModalComponent.vue";
-import { ref, toRaw, onMounted, watch } from "vue";
+
+// vue
+import { ref, toRaw, onMounted, watch, computed } from "vue";
+
+// pinia
 import { storeToRefs } from "pinia";
 
+// store
 import { useUserStore } from "../store/useUserStore";
-
 const userStore = useUserStore();
 const { userInfo, users } = storeToRefs(userStore);
 
+// data
 let displayModal = ref(false);
 let editedUser = {};
-
 let listOfSelectedUsersId = ref([]);
 let isAllUsersChecked = ref(false);
 
-function handleSelectAll(e) {
-  if (e.target.checked) {
-    let that = this;
-    // we change only the content of value in order to keep reactivity
-    listOfSelectedUsersId.value = users.value.map((user) => user._id);
-    listOfSelectedUsersId.value = listOfSelectedUsersId.value.filter(
-      (id) => id !== that.userInfo._id
-    );
+// computed
+const isIndeterminate = computed(() => {
+  return (
+    listOfSelectedUsersId.value.length > 0 &&
+    listOfSelectedUsersId.value.length < users.value.length - 1
+  );
+});
 
-    return;
-  }
-
-  // we change only the content of value in order to keep reactivity
-  listOfSelectedUsersId.value = [];
-}
-
+//watchers
 watch(
   listOfSelectedUsersId,
   () => {
@@ -143,10 +142,26 @@ watch(
   { once: true } //the callback to trigger only once when the source changes
 );
 
+//methods
+function handleSelectAll(e) {
+  if (e.target.checked) {
+    let that = this;
+    // we change only the content of value in order to keep reactivity
+    listOfSelectedUsersId.value = users.value.map((user) => user._id);
+    listOfSelectedUsersId.value = listOfSelectedUsersId.value.filter(
+      (id) => id !== that.userInfo._id
+    );
+
+    return;
+  }
+
+  // we change only the content of value in order to keep reactivity
+  listOfSelectedUsersId.value = [];
+}
+
 function openUserEditionModal(user) {
   displayModal.value = true;
   editedUser = { ...user }; // In order to disable reactivity
-  person.name = "popo" + Math.random();
 }
 
 function handleUserEdition() {
@@ -159,7 +174,8 @@ function deleteUser(id) {
 }
 
 function bulkDelete() {
-  userStore.deleteSelectedUsers(toRaw(listOfSelectedUsersId.value)); // we need to prepare param before sending it to BE
+  // we need to prepare param before sending it to BE
+  userStore.deleteSelectedUsers(toRaw(listOfSelectedUsersId.value));
 }
 
 onMounted(async () => {

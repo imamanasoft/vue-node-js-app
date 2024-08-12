@@ -1,6 +1,8 @@
 // server/routes/userRoutes.js
 
 import express from "express";
+import multer from "multer";
+
 import {
   createProduct,
   getProducts,
@@ -15,7 +17,12 @@ import { protect } from "../middleware/authMiddleware.js";
 
 const router = express.Router();
 
-router.post("/products", protect, createProduct);
+// Set up multer for file uploads
+const storage = multer.memoryStorage(); // Store the file in memory as a Buffer
+const upload = multer({ storage: storage });
+
+// POST route for uploading a new product with an image
+router.post("/products", upload.single("image"), createProduct);
 router.get("/products", protect, getProducts);
 /*router.get("/users/:id", protect, getUser);
 router.post("/users", createUser);

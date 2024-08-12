@@ -2,7 +2,7 @@
 
 import { defineStore } from "pinia";
 import axios from "axios";
-axios.defaults.baseURL = "https://8vl4v8-5000.csb.app/";
+axios.defaults.baseURL = "https://8vl4v8-8000.csb.app/";
 
 // add token to headers
 if (localStorage.getItem("user")) {
@@ -19,8 +19,10 @@ export const useProductStore = defineStore("product", {
   actions: {
     async createProduct(product) {
       try {
-        const res = await axios.post("/api/products", {
-          product,
+        const res = await axios.post("/api/products", product, {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
         });
         this.productInfo = res.data;
         this.getAllProducts();

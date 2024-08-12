@@ -27,17 +27,24 @@
 </template>
 
 <script setup>
+// vue
 import { ref, onMounted } from "vue";
-import { useUserStore } from "../store/useUserStore";
-import { useRouter } from "vue-router";
 
+// store
+import { useUserStore } from "../store/useUserStore";
+const userStore = useUserStore();
+
+// router
+import { useRouter } from "vue-router";
+const router = useRouter();
+
+//data
 const emailInput = ref(null);
 const email = ref("");
 const password = ref("");
 const error = ref(null);
-const userStore = useUserStore();
-const router = useRouter();
 
+// methods
 const handleLogin = async () => {
   try {
     await userStore.login(email.value, password.value);

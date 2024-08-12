@@ -23,12 +23,10 @@ const productSchema = new mongoose.Schema({
     type: String,
     ref: "Category", // Reference the Category model (optional)
   },
-  image: [
-    {
-      data: Buffer,
-      type: String,
-    },
-  ],
+  image: {
+    data: Buffer,
+    contentType: String,
+  },
   stock: {
     type: Number,
     min: 0, // Enforce non-negative stock
