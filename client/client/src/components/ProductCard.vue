@@ -1,7 +1,9 @@
 <template>
-  <div class="card col m-2">
+  <div :class="[{ cardInDarkMode: isDarkMode }, 'card col m-2']">
     <div class="card-body">
-      <img class="img-fluid" :src="imageSrc" />
+      <div class="d-flex justify-content-center mb-4">
+        <img class="img-fluid" :src="imageSrc" />
+      </div>
       <h5 class="card-title">{{ cardOptions.name }}</h5>
       <h6 class="card-subtitle mb-2 text-muted">
         {{ cardOptions.category }}
@@ -15,6 +17,10 @@
 <script setup>
 // vue
 import { computed } from "vue";
+
+// inject
+import { inject } from "vue";
+const isDarkMode = inject("isDarkMode");
 
 // props
 const props = defineProps({
@@ -58,7 +64,14 @@ function _imageEncode(arrayBuffer) {
 </script>
 
 <style scoped>
-.productImg {
-  object-fit: contain;
+img {
+  object-fit: fill;
+  width: 150px;
+  height: 150px;
+  margin: auto;
+}
+
+.cardInDarkMode {
+  background-color: orange;
 }
 </style>

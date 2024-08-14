@@ -1,6 +1,12 @@
 <!-- client/src/views/ProductsView.vue -->
 
 <template>
+  <div class="d-flex justify-content-center">
+    <h2 class="text-center mt-4">Products list:</h2>
+    <button class="btn btn-outline-success m-4" @click="displayModal = true">
+      Add product
+    </button>
+  </div>
   <div
     v-if="isLoading"
     class="position-absolute top-50 start-50 translate-middle"
@@ -9,26 +15,25 @@
       <span class="visually-hidden">Loading...</span>
     </div>
   </div>
-  <template v-else>
-    <div class="d-flex justify-content-center">
-      <h2 class="text-center mt-4">Products list:</h2>
-      <button
-        class="btn btn-outline-success ms-2 m-4"
-        @click="displayModal = true"
-      >
-        Add product
-      </button>
+  <div class="container">
+    <button
+      v-if="!isLoading && !allItemsLoaded"
+      class="btn btn-success mb-2"
+      @click="lazyLoading"
+    >
+      Load more
+    </button>
+    <div class="row row-cols-4">
+      <ProductCard
+        v-for="product in products"
+        :key="product._id"
+        :cardOptions="product"
+      />
     </div>
-    <div class="container">
-      <div class="row row-cols-4">
-        <ProductCard
-          v-for="product in products"
-          :key="product._id"
-          :cardOptions="product"
-        />
-      </div>
-    </div>
-  </template>
+  </div>
+  <p v-if="allItemsLoaded" class="text-center my-4">
+    All items have been loaded
+  </p>
   <Teleport to="body">
     <ModalComponent
       v-if="displayModal"
@@ -117,12 +122,43 @@ const products = computed(() => {
 });
 
 // data
-const isLoading = ref(true);
+const initialState = {
+  name: "",
+  description: "",
+  price: "",
+  category: "",
+  stock: "",
+  image: "",
+};
+const isLoading = ref(false);
 const displayModal = ref(false);
 const fileInput = ref(null);
-const newProduct = reactive({});
+const newProduct = reactive({ ...initialState });
+const page = ref(1);
+const limit = 4;
+const allItemsLoaded = ref(false);
 
 // methods
+const lazyLoading = async () => {
+  if (isLoading.value || allItemsLoaded.value) return;
+
+  isLoading.value = true;
+
+  try {
+    const response = await productStore.getAllProducts(page.value, limit);
+
+    page.value += 1;
+
+    if (products.value.length >= response.data.totalItems) {
+      allItemsLoaded.value = true;
+    }
+  } catch (error) {
+    console.error("Erreur lors du chargement des items:", error);
+  } finally {
+    isLoading.value = false;
+  }
+};
+
 function handleAddProduct() {
   const formData = new FormData();
   formData.append("name", newProduct.name);
@@ -134,7 +170,13 @@ function handleAddProduct() {
 
   productStore.createProduct(formData);
   displayModal.value = false;
-  newProduct = reactive({});
+
+  // https://github.com/vuejs/core/issues/1081#issuecomment-621385050
+  newProduct = resetAddProductForm();
+}
+
+function resetAddProductForm() {
+  Object.assign(newProduct, initialState);
 }
 
 //https://www.mongodb.com/community/forums/t/storing-images-in-mongodb/152599/3
@@ -145,10 +187,18 @@ async function uploadImage(e) {
   newProduct.image = file[0];
 }
 
-onMounted(async () => {
-  await productStore.getAllProducts();
+onMounted(() => {
+  lazyLoading();
 
-  isLoading.value = false;
+  window.addEventListener("scroll", () => {
+    if (
+      window.innerHeight + window.scrollY >= document.body.offsetHeight - 200 &&
+      !isLoading.value &&
+      !allItemsLoaded.value
+    ) {
+      lazyLoading();
+    }
+  });
 });
 </script>
 <style scoped></style>

@@ -30,10 +30,15 @@ export const useProductStore = defineStore("product", {
         throw error.message;
       }
     },
-    async getAllProducts() {
+    async getAllProducts(page, limit) {
       try {
-        const res = await axios.get("/api/products");
-        this.products = res.data;
+        const res = await axios.get("/api/products", {
+          params: { page, limit }, // req.query
+        });
+
+        this.products = [...this.products, ...res.data.data];
+
+        return res;
       } catch (error) {
         throw error.message;
       }

@@ -1,7 +1,12 @@
 <!-- client/src/App.vue -->
 
 <template>
-  <nav class="navbar navbar-expand-lg navbar-light bg-light">
+  <nav
+    :class="[
+      'navbar navbar-expand-lg',
+      isDarkMode ? 'navbar-dark-mode' : 'navbar-light bg-light',
+    ]"
+  >
     <template v-if="userInfo">
       <router-link activeClass="activeLink" class="navbar-brand" to="/"
         >Home</router-link
@@ -12,6 +17,19 @@
       <router-link activeClass="activeLink" class="navbar-brand" to="/profile"
         >Profile</router-link
       >
+      <div class="form-check form-switch">
+        <input
+          class="form-check-input"
+          type="checkbox"
+          role="switch"
+          id="flexSwitchCheckDefault"
+          v-model="isDarkMode"
+          @change="handleModeChange"
+        />
+        <label class="form-check-label" for="flexSwitchCheckDefault">{{
+          modeLabel
+        }}</label>
+      </div>
       <button class="btn btn-outline-danger" @click="handleLogout">
         Logout
       </button>
@@ -37,7 +55,11 @@
 </template>
 
 <script setup>
-import { computed } from "vue";
+// vue
+import { computed, ref } from "vue";
+
+// provide
+import { provide } from "vue";
 
 // router
 import { useRouter } from "vue-router";
@@ -48,7 +70,31 @@ import { useUserStore } from "./store/useUserStore";
 const userStore = useUserStore();
 const userInfo = computed(() => userStore.userInfo);
 
+// data
+const isDarkMode = ref(false);
+
+// after init
+provide(/* key */ "isDarkMode", /* value */ isDarkMode);
+
+// computed
+const modeLabel = computed(() => {
+  return isDarkMode.value ? "Light mode" : "Dark mode";
+});
+
+const modeBackgroundColor = computed(() => {
+  return isDarkMode.value ? "navajowhite" : "#d3d3d3";
+});
+
 // methods
+const handleModeChange = () => {
+  document
+    .querySelector("body")
+    .classList.add(isDarkMode.value ? "dark" : "light");
+  document
+    .querySelector("body")
+    .classList.remove(isDarkMode.value ? "light" : "dark");
+};
+
 const handleLogout = () => {
   userStore.logout();
   router.push("/login");
@@ -64,9 +110,18 @@ nav {
 }
 
 .activeLink {
-  background: #d3d3d3;
+  background: v-bind("modeBackgroundColor");
   border-radius: 35px;
   padding: 0px 20px;
   line-height: 50px;
+}
+
+.form-check-input:checked {
+  background-color: #000;
+  border-color: #000;
+}
+
+.navbar-dark-mode {
+  background-color: orange;
 }
 </style>
