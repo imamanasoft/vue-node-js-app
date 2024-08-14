@@ -27,17 +27,23 @@ export const createProduct = async (req, res) => {
   }
 };
 
-// Get all products
+// Get all products - lazy loading
 export const getProducts = async (req, res) => {
   try {
-    let data = await Product.find();
+    const { page = 1, limit = 10 } = req.query;
 
-    /*data.forEach((product) => {
-      console.log("product.image.data.data", product.image);
-      product.image.data = Buffer.from(product.image.data).toString("base64");
-    });*/
+    let data = await Product.find()
+      .skip((page - 1) * limit)
+      .limit(Number(limit));
 
-    res.status(200).json(data);
+    const totalItems = await Product.countDocuments();
+
+    res.status(200).json({
+      data,
+      totalItems,
+      totalPages: Math.ceil(totalItems / limit),
+      currentPage: Number(page),
+    });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
