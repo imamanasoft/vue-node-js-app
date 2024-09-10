@@ -6,6 +6,7 @@ import LoginView from "../views/LoginView.vue";
 import RegisterView from "../views/RegisterView.vue";
 import ProfileView from "../views/ProfileView.vue";
 import ProductsView from "../views/ProductsView.vue";
+import ChatView from "../views/ChatView.vue";
 
 const routes = [
   {
@@ -26,6 +27,12 @@ const routes = [
     path: "/products",
     name: "Products",
     component: ProductsView,
+    meta: { requiresAuth: true },
+  },
+  {
+    path: "/chat",
+    name: "Chat",
+    component: ChatView,
     meta: { requiresAuth: true },
   },
 ];

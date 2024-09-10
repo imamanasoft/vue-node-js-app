@@ -17,6 +17,9 @@
       <router-link activeClass="activeLink" class="navbar-brand" to="/profile"
         >Profile</router-link
       >
+      <router-link activeClass="activeLink" class="navbar-brand" to="/chat"
+        >Chat</router-link
+      >
       <div class="form-check form-switch">
         <input
           class="form-check-input"
