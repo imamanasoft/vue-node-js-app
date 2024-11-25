@@ -44,11 +44,13 @@ app.use(express.json());
 app.use("/api", userRoutes);
 app.use("/api", productRoutes);
 
+// Database Atlas MongoDB uri
+const uri =
+  "mongodb+srv://anas-usmo:GbyjZZvWxkhtiSjQ@tuto-db.j4taaoe.mongodb.net/?retryWrites=true&w=majority&appName=tuto-db";
+
 // Database Connection
 mongoose
-  .connect(
-    "mongodb+srv://test:cICwhD72iU2hKceT@cluster0.68zwo.mongodb-stage.net/?retryWrites=true&w=majority&appName=Cluster0"
-  )
+  .connect(uri)
   .then(() => console.log("MongoDB connected"))
   .catch((err) => console.error(err));
 

@@ -22,7 +22,7 @@
 import { ref, onMounted, onUnmounted } from "vue";
 import { io } from "socket.io-client";
 
-const socket = io("https://8vl4v8-8000.csb.app/"); // URL du serveur Node.js
+const socket = io("https://hcfn53-8000.csb.app/"); // URL du serveur Node.js
 
 const messages = ref([]);
 const newMessage = ref("");

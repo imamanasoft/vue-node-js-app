@@ -2,7 +2,7 @@
 
 import { defineStore } from "pinia";
 import axios from "axios";
-axios.defaults.baseURL = "https://8vl4v8-5000.csb.app/";
+axios.defaults.baseURL = "https://hcfn53-8000.csb.app/"; // URL du serveur Node.js
 
 // add token to headers
 if (localStorage.getItem("user")) {
